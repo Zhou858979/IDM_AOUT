@@ -512,7 +512,6 @@ class Scanner:
                 "retries": retries,
                 "success": self.previous_probe_success
             }
-            self.detect_threshold_z = original_threshold
         except self.printer.command_error:
             self.trigger_method = 0
             if hasattr(kinematics, "note_z_not_homed"):
@@ -523,6 +522,8 @@ class Scanner:
                 except:
                     kinematics.clear_homing_state([2])    
             raise
+        finally:
+            self.detect_threshold_z = original_threshold
 
     def touch_probe(self, speed, skip=0, verbose=True):
         skipped_msg = ""
@@ -539,7 +540,7 @@ class Scanner:
         except self.printer.command_error as e:
             reason = str(e)
             if "Timeout during endstop homing" in reason:
-                reason += HINT_TIMEOUT
+                reason += probe.HINT_TIMEOUT
             raise self.printer.command_error(reason)
         if (verbose):
             if skip == 1:
